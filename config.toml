@@ -1,0 +1,5 @@
+# default config file.
+[dbConfig]
+username = "btnuser"
+password = "btn123"
+dbName = "btndb?charset=utf8&parseTime=true"

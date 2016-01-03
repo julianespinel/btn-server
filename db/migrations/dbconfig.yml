@@ -1,0 +1,4 @@
+development: 
+  dialect: mysql
+  datasource: btnuser:btn123@/btndb?charset=utf8&parseTime=true
+  dir: .
