@@ -5,7 +5,7 @@ import (
 )
 
 type PanicDevice struct {
-	serial string
+	serial    string
 	birthDate time.Time
 	beathDate time.Time
 }

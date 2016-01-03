@@ -1,12 +1,12 @@
 package main
 
 import (
-	"os"
-	"github.com/gin-gonic/gin"
-	pd "github.com/julianespinel/btn-server/panicdevice"
-	inf "github.com/julianespinel/btn-server/infrastructure"
 	"github.com/BurntSushi/toml"
 	"github.com/Sirupsen/logrus"
+	"github.com/gin-gonic/gin"
+	inf "github.com/julianespinel/btn-server/infrastructure"
+	pd "github.com/julianespinel/btn-server/panicdevice"
+	"os"
 )
 
 var log = logrus.New()

@@ -1,8 +1,8 @@
 package panicdevice
 
 import (
-	"time"
 	"database/sql"
+	"time"
 )
 
 type PanicDAO struct {

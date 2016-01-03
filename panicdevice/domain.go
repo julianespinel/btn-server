@@ -2,8 +2,8 @@ package panicdevice
 
 import (
 	"database/sql"
-	inf "github.com/julianespinel/btn-server/infrastructure"
 	_ "github.com/go-sql-driver/mysql"
+	inf "github.com/julianespinel/btn-server/infrastructure"
 )
 
 type PanicBusiness struct {
@@ -16,7 +16,7 @@ func CreatePanicBusiness(dbConfig inf.DBConfig, panicDAO PanicDAO) PanicBusiness
 }
 
 func getDatabase(dbConfig inf.DBConfig) *sql.DB {
-	database, err := sql.Open("mysql", dbConfig.Username + ":" + dbConfig.Password + "@/" + dbConfig.DbName)
+	database, err := sql.Open("mysql", dbConfig.Username+":"+dbConfig.Password+"@/"+dbConfig.DbName)
 	if err != nil {
 		// Handle error properly.
 	}
