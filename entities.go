@@ -1,5 +1,9 @@
 package main
 
+import (
+	"time"
+)
+
 type Alert struct {
 	id           float64
 	creationDate time.Time
