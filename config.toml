@@ -1,5 +1,8 @@
 # default config file.
-[dbConfig]
+[server]
+port = 7008
+
+[database]
 username = "btnuser"
 password = "btn123"
 dbName = "btndb?charset=utf8&parseTime=true"

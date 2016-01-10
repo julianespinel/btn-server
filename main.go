@@ -1,12 +1,14 @@
 package main
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/BurntSushi/toml"
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	inf "github.com/julianespinel/btn-server/infrastructure"
 	pd "github.com/julianespinel/btn-server/panicdevice"
-	"os"
 )
 
 var log = logrus.New()
@@ -32,9 +34,12 @@ func main() {
 	btn := router.Group("/btn")
 	api := btn.Group("/api")
 	{
-		dbConfig := config.DbConfig
+		dbConfig := config.Database
 		panicBusiness := pd.CreatePanicBusiness(dbConfig, pd.PanicDAO{})
 		panicAPI := pd.CreatePanicAPI(panicBusiness)
 		api.POST("/panic-device", panicAPI.PanicRoutes())
 	}
+
+	serverConfig := config.Server
+	router.Run(":" + strconv.Itoa(serverConfig.Port))
 }

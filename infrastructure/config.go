@@ -1,5 +1,9 @@
 package infrastructure
 
+type ServerConfig struct {
+	Port int
+}
+
 type DBConfig struct {
 	Username string
 	Password string
@@ -7,5 +11,6 @@ type DBConfig struct {
 }
 
 type Config struct {
-	DbConfig DBConfig
+	Server   ServerConfig
+	Database DBConfig
 }
