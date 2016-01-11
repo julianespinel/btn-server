@@ -5,7 +5,7 @@ import (
 )
 
 type PanicDevice struct {
-	Serial    string    `binding:"required"`
-	BirthDate time.Time `binding:"required"`
+	Serial    string    `json:"serial" binding:"required"`
+	BirthDate time.Time `json:"birthDate" binding:"required"`
 	DeathDate time.Time
 }
