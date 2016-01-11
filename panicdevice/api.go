@@ -1,8 +1,9 @@
 package panicdevice
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PanicAPI struct {
@@ -11,6 +12,10 @@ type PanicAPI struct {
 
 func CreatePanicAPI(panicBusiness PanicBusiness) PanicAPI {
 	return PanicAPI{panicBusiness: panicBusiness}
+}
+
+func handleApiError(context *gin.Context, err error) {
+	context.JSON(-1, context.Error(err)) // -1 == not override the current error code
 }
 
 func (api PanicAPI) PanicRoutes() gin.HandlerFunc {
@@ -22,7 +27,7 @@ func (api PanicAPI) PanicRoutes() gin.HandlerFunc {
 			createdPanicDevice := business.createPanicDevice(device)
 			context.JSON(http.StatusCreated, createdPanicDevice)
 		} else {
-			context.JSON(http.StatusBadRequest, bindingError)
+			handleApiError(context, bindingError)
 		}
 	}
 	return routes
