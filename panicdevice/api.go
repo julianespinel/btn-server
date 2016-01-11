@@ -18,7 +18,7 @@ func handleApiError(context *gin.Context, err error) {
 	context.JSON(-1, context.Error(err)) // -1 == not override the current error code
 }
 
-func (api PanicAPI) PanicRoutes() gin.HandlerFunc {
+func (api PanicAPI) CreatePanicDevice() gin.HandlerFunc {
 	routes := func(context *gin.Context) {
 		var device PanicDevice
 		bindingError := context.Bind(&device)
