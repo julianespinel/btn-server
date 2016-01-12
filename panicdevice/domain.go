@@ -22,9 +22,16 @@ func getDatabase(dbConfig inf.DBConfig) *sql.DB {
 	return database
 }
 
-func (business PanicBusiness) createPanicDevice(device PanicDevice) PanicDevice {
+func (business PanicBusiness) createPanicDevice(device PanicDevice) (PanicDevice, error) {
 	database := getDatabase(business.dbConfig)
 	defer database.Close()
 	dao := business.panicDAO
 	return dao.createPanicDevice(database, device)
+}
+
+func (business PanicBusiness) attachElderToPanicDevice(serial string, elderId string) (bool, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.panicDAO
+	return dao.attachElderToPanicDevice(database, serial, elderId)
 }

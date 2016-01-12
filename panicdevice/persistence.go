@@ -3,68 +3,94 @@ package panicdevice
 import (
 	"database/sql"
 	"time"
-
-	inf "github.com/julianespinel/btn-server/infrastructure"
 )
 
 type PanicDAO struct {
+	err error
 }
 
-func (dao PanicDAO) createPanicDevice(database *sql.DB, device PanicDevice) PanicDevice {
+func (dao PanicDAO) handleError(err error) {
+	daoError := dao.err
+	if daoError == nil {
+		daoError = err
+	}
+}
+
+func (dao PanicDAO) createPanicDevice(database *sql.DB, device PanicDevice) (PanicDevice, error) {
 
 	stmt, err := database.Prepare("INSERT INTO panic_devices (serial, birth_date) VALUES (?, ?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	now := time.Now()
 	_, err = stmt.Exec(device.Serial, now)
-	inf.HandleDBError(err)
+	dao.handleError(err)
 
-	return device
+	return device, dao.err
 }
 
-func attachElderToPanicDevice(database *sql.DB, deviceSerial string, elderId string) {
+func (dao PanicDAO) attachElderToPanicDevice(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
 
 	stmt, err := database.Prepare("INSERT INTO devices_elders (serial, elder_id) VALUES (? ,?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	_, err = stmt.Exec(deviceSerial, elderId)
-	inf.HandleDBError(err)
+	dao.handleError(err)
 
-	addElderToPanicDeviceHistory(database, deviceSerial, elderId)
+	wasSuccessful := false
+	daoError := dao.err
+	if daoError == nil {
+		wasSuccessful, daoError = dao.addElderToPanicDeviceHistory(database, deviceSerial, elderId)
+	}
+
+	return wasSuccessful, daoError
 }
 
-func addElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) {
+func (dao PanicDAO) addElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
 
 	stmt, err := database.Prepare("INSERT INTO devices_history (serial, elder_id, attachment_date) VALUES (?, ?, ?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	now := time.Now()
 	_, err = stmt.Exec(deviceSerial, elderId, now)
-	inf.HandleDBError(err)
+	dao.handleError(err)
+
+	daoError := dao.err
+	wasSuccessful := (daoError == nil)
+	return wasSuccessful, daoError
 }
 
-func detachElderFromPanicDevise(database *sql.DB, deviceSerial string, elderId string) {
+func (dao PanicDAO) detachElderFromPanicDevise(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
 
 	stmt, err := database.Prepare("DELETE FROM devices_elders WHERE serial = ? AND elder_id = ?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	_, err = stmt.Exec(deviceSerial, elderId)
-	inf.HandleDBError(err)
+	dao.handleError(err)
 
-	removeElderToPanicDeviceHistory(database, deviceSerial, elderId)
+	wasSuccessful := false
+	daoError := dao.err
+	if daoError == nil {
+		wasSuccessful, daoError = dao.removeElderToPanicDeviceHistory(database, deviceSerial, elderId)
+	}
+
+	return wasSuccessful, daoError
 }
 
-func removeElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) {
+func (dao PanicDAO) removeElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
 
 	stmt, err := database.Prepare("UPDATE devices_history SET detachment_date = ? WHERE serial = ? AND elder_id = ?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	now := time.Now()
 	_, err = stmt.Exec(now, deviceSerial, elderId)
-	inf.HandleDBError(err)
+	dao.handleError(err)
+
+	daoError := dao.err
+	wasSuccessful := (daoError == nil)
+	return wasSuccessful, daoError
 }
