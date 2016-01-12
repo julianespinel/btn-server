@@ -22,9 +22,9 @@ func getDatabase(dbConfig inf.DBConfig) *sql.DB {
 	return database
 }
 
-func (elderBusiness ElderBusiness) createElder(elder Elder) Elder {
-	database := getDatabase(elderBusiness.dbConfig)
+func (business ElderBusiness) createElder(elder Elder) Elder {
+	database := getDatabase(business.dbConfig)
 	defer database.Close()
-	dao := elderBusiness.elderDAO
+	dao := business.elderDAO
 	return dao.createElder(database, elder)
 }
