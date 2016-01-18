@@ -53,7 +53,8 @@ func main() {
 	{
 		// panic devices routes
 		api.POST("/panic-devices", panicAPI.CreatePanicDevice())
-		api.PUT("/panic-devices/:serial/elders/:elderId", panicAPI.AttachElderToDevice())
+		api.PUT("/panic-devices/:serial/elders/:elderId", panicAPI.AttachElderToPanicDevice())
+		api.DELETE("/panic-devices/:serial/elders/:elderId", panicAPI.DetachElderFromPanicDevice())
 		// elders routes
 		api.POST("/elders", elderAPI.CreateElder())
 	}

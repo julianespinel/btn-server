@@ -35,3 +35,10 @@ func (business PanicBusiness) attachElderToPanicDevice(serial string, elderId st
 	dao := business.panicDAO
 	return dao.attachElderToPanicDevice(database, serial, elderId)
 }
+
+func (business PanicBusiness) detachElderFromPanicDevice(serial string, elderId string) (bool, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.panicDAO
+	return dao.detachElderFromPanicDevice(database, serial, elderId)
+}

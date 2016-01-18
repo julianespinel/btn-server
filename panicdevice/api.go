@@ -38,14 +38,30 @@ func (api PanicAPI) CreatePanicDevice() gin.HandlerFunc {
 	return handlerFunction
 }
 
-func (api PanicAPI) AttachElderToDevice() gin.HandlerFunc {
+func (api PanicAPI) AttachElderToPanicDevice() gin.HandlerFunc {
 	handlerFunction := func(context *gin.Context) {
 		serial := context.Param("serial")
 		elderId := context.Param("elderId")
 		business := api.panicBusiness
 		_, err := business.attachElderToPanicDevice(serial, elderId)
 		if err == nil {
-			stringMessage := inf.GetStringMessage("message", "The elder has been attached.")
+			stringMessage := inf.GetStringMessage("message", "Elder has been attached")
+			context.JSON(http.StatusOK, stringMessage)
+		} else {
+			handleApiError(context, err)
+		}
+	}
+	return handlerFunction
+}
+
+func (api PanicAPI) DetachElderFromPanicDevice() gin.HandlerFunc {
+	handlerFunction := func(context *gin.Context) {
+		serial := context.Param("serial")
+		elderId := context.Param("elderId")
+		business := api.panicBusiness
+		_, err := business.detachElderFromPanicDevice(serial, elderId)
+		if err == nil {
+			stringMessage := inf.GetStringMessage("message", "Elder has been detached")
 			context.JSON(http.StatusOK, stringMessage)
 		} else {
 			handleApiError(context, err)
