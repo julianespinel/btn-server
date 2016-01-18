@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	inf "github.com/julianespinel/btn-server/infrastructure"
 )
 
 type ElderAPI struct {
@@ -14,20 +15,20 @@ func CreateElderAPI(elderBusiness ElderBusiness) ElderAPI {
 	return ElderAPI{elderBusiness: elderBusiness}
 }
 
-func handleApiError(context *gin.Context, err error) {
-	context.JSON(-1, context.Error(err)) // -1 == not override the current error code
-}
-
 func (api ElderAPI) CreateElder() gin.HandlerFunc {
 	handlerFunction := func(context *gin.Context) {
 		var elder Elder
 		bindingError := context.Bind(&elder)
 		if bindingError == nil {
 			business := api.elderBusiness
-			createdElder := business.createElder(elder)
-			context.JSON(http.StatusCreated, createdElder)
+			createdElder, err := business.createElder(elder)
+			if err == nil {
+				context.JSON(http.StatusCreated, createdElder)
+			} else {
+				inf.HandleApiError(context, err)
+			}
 		} else {
-			handleApiError(context, bindingError)
+			inf.HandleApiError(context, bindingError)
 		}
 	}
 	return handlerFunction

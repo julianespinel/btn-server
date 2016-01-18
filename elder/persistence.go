@@ -4,20 +4,38 @@ import (
 	"database/sql"
 	"time"
 
-	inf "github.com/julianespinel/btn-server/infrastructure"
+	"github.com/Sirupsen/logrus"
 )
 
 type ElderDAO struct {
+	err error
 }
 
-func (dao ElderDAO) createElder(database *sql.DB, elder Elder) Elder {
+var log = logrus.New()
+
+// Keep the first error.
+func (dao ElderDAO) handleError(err error) {
+	if dao.err == nil {
+		dao.err = err
+		log.Error(err)
+	}
+}
+
+// Clean dao.err and return the latest error if any.
+func (dao ElderDAO) Error() error {
+	daoError := dao.err
+	dao.err = nil
+	return daoError
+}
+
+func (dao ElderDAO) createElder(database *sql.DB, elder Elder) (Elder, error) {
 	stmt, err := database.Prepare("INSERT INTO elders (id, name, last_name, cellphone, registration_date) VALUES (?, ?, ?, ? ,?);")
-	inf.HandleDBError(err)
+	dao.handleError(err)
 	defer stmt.Close()
 
 	now := time.Now()
 	_, err = stmt.Exec(elder.Id, elder.Name, elder.LastName, elder.Cellphone, now)
-	inf.HandleDBError(err)
+	dao.handleError(err)
 
-	return elder
+	return elder, dao.Error()
 }

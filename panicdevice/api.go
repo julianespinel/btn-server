@@ -15,10 +15,6 @@ func CreatePanicAPI(panicBusiness PanicBusiness) PanicAPI {
 	return PanicAPI{panicBusiness: panicBusiness}
 }
 
-func handleApiError(context *gin.Context, err error) {
-	context.JSON(-1, context.Error(err)) // -1 == not override the current error code
-}
-
 func (api PanicAPI) CreatePanicDevice() gin.HandlerFunc {
 	handlerFunction := func(context *gin.Context) {
 		var device PanicDevice
@@ -29,10 +25,10 @@ func (api PanicAPI) CreatePanicDevice() gin.HandlerFunc {
 			if err == nil {
 				context.JSON(http.StatusCreated, createdPanicDevice)
 			} else {
-				handleApiError(context, err)
+				inf.HandleApiError(context, err)
 			}
 		} else {
-			handleApiError(context, bindingError)
+			inf.HandleApiError(context, bindingError)
 		}
 	}
 	return handlerFunction
@@ -48,7 +44,7 @@ func (api PanicAPI) AttachElderToPanicDevice() gin.HandlerFunc {
 			stringMessage := inf.GetStringMessage("message", "Elder has been attached")
 			context.JSON(http.StatusOK, stringMessage)
 		} else {
-			handleApiError(context, err)
+			inf.HandleApiError(context, err)
 		}
 	}
 	return handlerFunction
@@ -64,7 +60,7 @@ func (api PanicAPI) DetachElderFromPanicDevice() gin.HandlerFunc {
 			stringMessage := inf.GetStringMessage("message", "Elder has been detached")
 			context.JSON(http.StatusOK, stringMessage)
 		} else {
-			handleApiError(context, err)
+			inf.HandleApiError(context, err)
 		}
 	}
 	return handlerFunction
