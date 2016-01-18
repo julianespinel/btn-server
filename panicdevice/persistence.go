@@ -3,17 +3,29 @@ package panicdevice
 import (
 	"database/sql"
 	"time"
+
+	"github.com/Sirupsen/logrus"
 )
 
 type PanicDAO struct {
 	err error
 }
 
+var log = logrus.New()
+
+// Keep the first error.
 func (dao PanicDAO) handleError(err error) {
-	daoError := dao.err
-	if daoError == nil {
-		daoError = err
+	if dao.err == nil {
+		dao.err = err
+		log.Error(err)
 	}
+}
+
+// clean dao.err and return the latest error if any.
+func (dao PanicDAO) Error() error {
+	daoError := dao.err
+	dao.err = nil
+	return daoError
 }
 
 func (dao PanicDAO) createPanicDevice(database *sql.DB, device PanicDevice) (PanicDevice, error) {
@@ -26,7 +38,7 @@ func (dao PanicDAO) createPanicDevice(database *sql.DB, device PanicDevice) (Pan
 	_, err = stmt.Exec(device.Serial, now)
 	dao.handleError(err)
 
-	return device, dao.err
+	return device, dao.Error()
 }
 
 func (dao PanicDAO) attachElderToPanicDevice(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
@@ -39,12 +51,10 @@ func (dao PanicDAO) attachElderToPanicDevice(database *sql.DB, deviceSerial stri
 	dao.handleError(err)
 
 	wasSuccessful := false
-	daoError := dao.err
-	if daoError == nil {
-		wasSuccessful, daoError = dao.addElderToPanicDeviceHistory(database, deviceSerial, elderId)
-	}
+	wasSuccessful, err = dao.addElderToPanicDeviceHistory(database, deviceSerial, elderId)
+	dao.handleError(err)
 
-	return wasSuccessful, daoError
+	return wasSuccessful, dao.Error()
 }
 
 func (dao PanicDAO) addElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
@@ -90,7 +100,7 @@ func (dao PanicDAO) removeElderToPanicDeviceHistory(database *sql.DB, deviceSeri
 	_, err = stmt.Exec(now, deviceSerial, elderId)
 	dao.handleError(err)
 
-	daoError := dao.err
+	daoError := dao.Error()
 	wasSuccessful := (daoError == nil)
 	return wasSuccessful, daoError
 }
