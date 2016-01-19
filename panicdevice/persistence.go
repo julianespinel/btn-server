@@ -11,11 +11,15 @@ type PanicDAO struct {
 	err error
 }
 
+func CreatePanicDAO() PanicDAO {
+	return PanicDAO{err: nil}
+}
+
 var log = logrus.New()
 
 // Keep the first error.
 func (dao PanicDAO) handleError(err error) {
-	if dao.err == nil {
+	if dao.err == nil && err != nil {
 		dao.err = err
 		log.Error(err)
 	}
