@@ -24,13 +24,13 @@ func getSystemConfig(fileName string) inf.Config {
 }
 
 func getPanicAPI(dbConfig inf.DBConfig) pd.PanicAPI {
-	panicBusiness := pd.CreatePanicBusiness(dbConfig, pd.PanicDAO{})
+	panicBusiness := pd.CreatePanicBusiness(dbConfig, pd.CreatePanicDAO())
 	panicAPI := pd.CreatePanicAPI(panicBusiness)
 	return panicAPI
 }
 
 func getElderAPI(dbConfig inf.DBConfig) el.ElderAPI {
-	elderBusiness := el.CreateElderBusiness(dbConfig, el.ElderDAO{})
+	elderBusiness := el.CreateElderBusiness(dbConfig, el.CreateElderDAO())
 	elderAPI := el.CreateElderAPI(elderBusiness)
 	return elderAPI
 }
@@ -57,6 +57,7 @@ func main() {
 		api.DELETE("/panic-devices/:serial/elders/:elderId", panicAPI.DetachElderFromPanicDevice())
 		// elders routes
 		api.POST("/elders", elderAPI.CreateElder())
+		api.POST("/elders/:elderId/relatives", elderAPI.AddRelativeToElder())
 	}
 
 	serverConfig := config.Server

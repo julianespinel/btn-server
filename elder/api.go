@@ -33,3 +33,24 @@ func (api ElderAPI) CreateElder() gin.HandlerFunc {
 	}
 	return handlerFunction
 }
+
+func (api ElderAPI) AddRelativeToElder() gin.HandlerFunc {
+	handlerFunction := func(context *gin.Context) {
+		elderId := context.Param("elderId")
+		var relative Relative
+		bindingError := context.Bind(&relative)
+		if bindingError == nil {
+			business := api.elderBusiness
+			_, err := business.addRelativeToElder(elderId, relative)
+			if err == nil {
+				stringMessage := inf.GetStringMessage("message", "Relative was attached to elder.")
+				context.JSON(http.StatusCreated, stringMessage)
+			} else {
+				inf.HandleApiError(context, err)
+			}
+		} else {
+			inf.HandleApiError(context, bindingError)
+		}
+	}
+	return handlerFunction
+}

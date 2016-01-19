@@ -28,3 +28,10 @@ func (business ElderBusiness) createElder(elder Elder) (Elder, error) {
 	dao := business.elderDAO
 	return dao.createElder(database, elder)
 }
+
+func (business ElderBusiness) addRelativeToElder(elderId string, relative Relative) (bool, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.elderDAO
+	return dao.addRelativeToElder(database, elderId, relative)
+}
