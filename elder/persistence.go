@@ -33,6 +33,7 @@ func (dao ElderDAO) Error() error {
 }
 
 func (dao ElderDAO) createElder(database *sql.DB, elder Elder) (Elder, error) {
+
 	stmt, err := database.Prepare("INSERT INTO elders (id, name, last_name, cellphone, registration_date) VALUES (?, ?, ?, ? ,?);")
 	dao.handleError(err)
 	defer stmt.Close()
@@ -72,4 +73,15 @@ func (dao ElderDAO) addRelativeToElder(database *sql.DB, elderId string, relativ
 	relativeWasAdded := (daoError == nil)
 
 	return relativeWasAdded, daoError
+}
+
+func (dao ElderDAO) removeRelativeFromElder(database *sql.DB, elderId string, relativeId string) (bool, error) {
+	stmt, err := database.Prepare("DELETE FROM elders_relatives WHERE elder_id=? AND relative_id=?;")
+	dao.handleError(err)
+	defer stmt.Close()
+	_, err = stmt.Exec(elderId, relativeId)
+	dao.handleError(err)
+	daoError := dao.Error()
+	relativeWasRemoved := (daoError == nil)
+	return relativeWasRemoved, daoError
 }

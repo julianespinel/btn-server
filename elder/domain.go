@@ -35,3 +35,10 @@ func (business ElderBusiness) addRelativeToElder(elderId string, relative Relati
 	dao := business.elderDAO
 	return dao.addRelativeToElder(database, elderId, relative)
 }
+
+func (business ElderBusiness) removeRelativeFromElder(elderId string, relativeId string) (bool, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.elderDAO
+	return dao.removeRelativeFromElder(database, elderId, relativeId)
+}

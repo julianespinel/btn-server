@@ -58,6 +58,7 @@ func main() {
 		// elders routes
 		api.POST("/elders", elderAPI.CreateElder())
 		api.POST("/elders/:elderId/relatives", elderAPI.AddRelativeToElder())
+		api.DELETE("/elders/:elderId/relatives/:relativeId", elderAPI.RemoveRelativeFromElder())
 	}
 
 	serverConfig := config.Server

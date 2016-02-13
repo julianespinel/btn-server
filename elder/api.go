@@ -54,3 +54,19 @@ func (api ElderAPI) AddRelativeToElder() gin.HandlerFunc {
 	}
 	return handlerFunction
 }
+
+func (api ElderAPI) RemoveRelativeFromElder() gin.HandlerFunc {
+	handlerFunction := func(context *gin.Context) {
+		elderId := context.Param("elderId")
+		relativeId := context.Param("relativeId")
+		business := api.elderBusiness
+		_, err := business.removeRelativeFromElder(elderId, relativeId)
+		if err == nil {
+			stringMessage := inf.GetStringMessage("message", "Relative was removed from elder.")
+			context.JSON(http.StatusOK, stringMessage)
+		} else {
+			inf.HandleApiError(context, err)
+		}
+	}
+	return handlerFunction
+}
