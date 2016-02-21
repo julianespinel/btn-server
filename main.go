@@ -7,6 +7,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	al "github.com/julianespinel/btn-server/alert"
 	el "github.com/julianespinel/btn-server/elder"
 	inf "github.com/julianespinel/btn-server/infrastructure"
 	pd "github.com/julianespinel/btn-server/panicdevice"
@@ -35,6 +36,14 @@ func getElderAPI(dbConfig inf.DBConfig) el.ElderAPI {
 	return elderAPI
 }
 
+func getAlertAPI(smsConfig inf.SmsConfig, dbConfig inf.DBConfig) al.AlertAPI {
+	alertBusiness := al.CreateAlertBusiness(smsConfig, dbConfig, al.CreateAlertDAO())
+	panicBusiness := pd.CreatePanicBusiness(dbConfig, pd.CreatePanicDAO())
+	elderBusiness := el.CreateElderBusiness(dbConfig, el.CreateElderDAO())
+	alertAPI := al.CreateAlertAPI(alertBusiness, panicBusiness, elderBusiness)
+	return alertAPI
+}
+
 // run: go run main.go config.toml
 func main() {
 
@@ -44,8 +53,10 @@ func main() {
 	log.Info("config", config)
 
 	dbConfig := config.Database
+	smsConfig := config.Sms
 	panicAPI := getPanicAPI(dbConfig)
 	elderAPI := getElderAPI(dbConfig)
+	alertAPI := getAlertAPI(smsConfig, dbConfig)
 
 	router := gin.Default()
 	btn := router.Group("/btn")
@@ -59,6 +70,8 @@ func main() {
 		api.POST("/elders", elderAPI.CreateElder())
 		api.POST("/elders/:elderId/relatives", elderAPI.AddRelativeToElder())
 		api.DELETE("/elders/:elderId/relatives/:relativeId", elderAPI.RemoveRelativeFromElder())
+		// alert routes
+		api.POST("/alerts", alertAPI.CreateAlert())
 	}
 
 	serverConfig := config.Server
