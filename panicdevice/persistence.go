@@ -18,7 +18,7 @@ func CreatePanicDAO() PanicDAO {
 var log = logrus.New()
 
 // Keep the first error.
-func (dao PanicDAO) handleError(err error) {
+func (dao *PanicDAO) handleError(err error) {
 	if dao.err == nil && err != nil {
 		dao.err = err
 		log.Error(err)
@@ -26,7 +26,7 @@ func (dao PanicDAO) handleError(err error) {
 }
 
 // clean dao.err and return the latest error if any.
-func (dao PanicDAO) Error() error {
+func (dao *PanicDAO) error() error {
 	daoError := dao.err
 	dao.err = nil
 	return daoError
@@ -42,7 +42,7 @@ func (dao PanicDAO) createPanicDevice(database *sql.DB, device PanicDevice) (Pan
 	_, err = stmt.Exec(device.Serial, now)
 	dao.handleError(err)
 
-	return device, dao.Error()
+	return device, dao.error()
 }
 
 func (dao PanicDAO) attachElderToPanicDevice(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
@@ -58,7 +58,7 @@ func (dao PanicDAO) attachElderToPanicDevice(database *sql.DB, deviceSerial stri
 	wasSuccessful, err = dao.addElderToPanicDeviceHistory(database, deviceSerial, elderId)
 	dao.handleError(err)
 
-	return wasSuccessful, dao.Error()
+	return wasSuccessful, dao.error()
 }
 
 func (dao PanicDAO) addElderToPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
@@ -71,7 +71,7 @@ func (dao PanicDAO) addElderToPanicDeviceHistory(database *sql.DB, deviceSerial 
 	_, err = stmt.Exec(deviceSerial, elderId, now)
 	dao.handleError(err)
 
-	daoError := dao.Error()
+	daoError := dao.error()
 	wasSuccessful := (daoError == nil)
 	return wasSuccessful, daoError
 }
@@ -89,7 +89,7 @@ func (dao PanicDAO) detachElderFromPanicDevice(database *sql.DB, deviceSerial st
 	wasSuccessful, err = dao.updateElderFromPanicDeviceHistory(database, deviceSerial, elderId)
 	dao.handleError(err)
 
-	return wasSuccessful, dao.Error()
+	return wasSuccessful, dao.error()
 }
 
 func (dao PanicDAO) updateElderFromPanicDeviceHistory(database *sql.DB, deviceSerial string, elderId string) (bool, error) {
@@ -102,7 +102,26 @@ func (dao PanicDAO) updateElderFromPanicDeviceHistory(database *sql.DB, deviceSe
 	_, err = stmt.Exec(now, deviceSerial, elderId)
 	dao.handleError(err)
 
-	daoError := dao.Error()
+	daoError := dao.error()
 	wasSuccessful := (daoError == nil)
 	return wasSuccessful, daoError
+}
+
+func (dao PanicDAO) getElderIdAssignedToPanicDevice(database *sql.DB, deviceSerial string) (string, error) {
+	elderId := ""
+	stmt, err := database.Prepare("SELECT elder_id FROM devices_elders WHERE serial = ?;")
+	dao.handleError(err)
+	defer stmt.Close()
+	rows, err := stmt.Query(deviceSerial)
+	dao.handleError(err)
+	defer rows.Close()
+	for rows.Next() {
+		var elder_id string
+		err = rows.Scan(&elder_id)
+		dao.handleError(err)
+		elderId = elder_id
+	}
+	err = rows.Err()
+	dao.handleError(err)
+	return elderId, dao.error()
 }
