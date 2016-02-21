@@ -42,3 +42,17 @@ func (business ElderBusiness) removeRelativeFromElder(elderId string, relativeId
 	dao := business.elderDAO
 	return dao.removeRelativeFromElder(database, elderId, relativeId)
 }
+
+func (business ElderBusiness) GetElderRelatives(elderId string) ([]Relative, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.elderDAO
+	return dao.getElderRelatives(database, elderId)
+}
+
+func (business ElderBusiness) GetElderById(elderId string) (Elder, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.elderDAO
+	return dao.getElderById(database, elderId)
+}
