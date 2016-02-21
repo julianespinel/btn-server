@@ -42,3 +42,10 @@ func (business PanicBusiness) detachElderFromPanicDevice(serial string, elderId 
 	dao := business.panicDAO
 	return dao.detachElderFromPanicDevice(database, serial, elderId)
 }
+
+func (business PanicBusiness) GetElderIdAssignedToPanicDevice(serial string) (string, error) {
+	database := getDatabase(business.dbConfig)
+	defer database.Close()
+	dao := business.panicDAO
+	return dao.getElderIdAssignedToPanicDevice(database, serial)
+}
