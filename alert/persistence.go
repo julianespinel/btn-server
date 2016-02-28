@@ -1,10 +1,6 @@
 package alert
 
-import (
-	"database/sql"
-
-	"github.com/Sirupsen/logrus"
-)
+import "database/sql"
 
 type AlertDAO struct {
 	err error
@@ -13,8 +9,6 @@ type AlertDAO struct {
 func CreateAlertDAO() AlertDAO {
 	return AlertDAO{err: nil}
 }
-
-var log = logrus.New()
 
 // Keep the first error.
 func (dao *AlertDAO) handleError(newError error) {
