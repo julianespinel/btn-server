@@ -25,30 +25,17 @@ func (api AlertAPI) CreateAlert() gin.HandlerFunc {
 		serial := context.Query("serial")
 		panicBusiness := api.panicBusiness
 		elderId, err := panicBusiness.GetElderIdAssignedToPanicDevice(serial)
-		if err == nil {
-			elderBusiness := api.elderBusiness
-			elder, err := elderBusiness.GetElderById(elderId)
-			if err == nil {
-				elderBusiness := api.elderBusiness
-				elderRelatives, err := elderBusiness.GetElderRelatives(elderId)
-				if err == nil {
-					alertBusiness := api.alertBusiness
-					alert := Alert{Serial: serial, ElderId: elderId, Date: time.Now()}
-					sendingResults, err := alertBusiness.processAlert(alert, elder, elderRelatives)
-					if err == nil {
-						context.JSON(http.StatusCreated, sendingResults)
-					} else {
-						inf.HandleApiError(context, err)
-					}
-				} else {
-					inf.HandleApiError(context, err)
-				}
-			} else {
-				inf.HandleApiError(context, err)
-			}
-		} else {
-			inf.HandleApiError(context, err)
-		}
+		inf.HandleOptionalApiError(context, err)
+		elderBusiness := api.elderBusiness
+		elder, err := elderBusiness.GetElderById(elderId)
+		inf.HandleOptionalApiError(context, err)
+		elderRelatives, err := elderBusiness.GetElderRelatives(elderId)
+		inf.HandleOptionalApiError(context, err)
+		alert := Alert{Serial: serial, ElderId: elderId, Date: time.Now()}
+		alertBusiness := api.alertBusiness
+		sendingResults, err := alertBusiness.processAlert(alert, elder, elderRelatives)
+		inf.HandleOptionalApiError(context, err)
+		context.JSON(http.StatusCreated, sendingResults)
 	}
 	return handlerFunction
 }
